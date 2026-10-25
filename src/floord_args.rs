@@ -1,6 +1,5 @@
-use std::path::PathBuf;
-
 use clap::Parser;
+use std::path::PathBuf;
 
 /// Future daemon to organize files
 #[derive(Parser, Debug)]
@@ -10,7 +9,7 @@ pub struct Args {
     #[arg(short, long)]
     pub inbox: Option<PathBuf>,
 
-    /// Seconds to wait after a file apears at inbox path
+    /// Seconds to wait after a file appears at inbox path
     #[arg(short, long, default_value_t = 300)]
     pub delay: u64,
 }

@@ -1,13 +1,15 @@
+use crate::file_groups::save;
 use dirs::download_dir;
+use std::thread::sleep;
 use std::{
     fs::ReadDir,
     path::PathBuf,
     time::Duration,
 };
-use std::thread::sleep;
 
 mod floord_args;
 pub mod database;
+pub mod file_groups;
 
 fn main() {
     let arguments: floord_args::Args = floord_args::parse_args();
@@ -18,29 +20,21 @@ fn main() {
     let seconds = Duration::new(arguments.delay, 0);
 
     loop {
-        let read_dir: ReadDir = inbox_dir
-            .read_dir()
-            .expect("[ERROR] Could not read inbox directory");
-
-        for entry in read_dir {
-            // Read the file's metadata
-            let metadata = match entry {
-                Ok(i) => {
-                    match i.metadata() {
-                        Ok(_metadata_) => {
-                            _metadata_
-                        }
-                        Err(_) => {continue}
-                    }
-                }
-                Err(_) => {continue}
-            };
-
-            // Todo: Database and file filter by filetype
-            println!("Todo bien: {:?}", metadata);
-
-        }
-
+        service(&inbox_dir);
         sleep(seconds);
+    }
+}
+
+
+fn service(inbox_dir: &PathBuf) {
+    let read_dir: ReadDir = inbox_dir
+        .read_dir()
+        .expect("[ERROR] Could not read inbox directory");
+
+    for entry in read_dir {
+        // Read the file's metadata
+        let Ok(dir_entry) = entry else { continue };
+
+        save(dir_entry, inbox_dir)
     }
 }
