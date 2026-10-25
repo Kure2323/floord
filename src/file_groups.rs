@@ -8,9 +8,10 @@ const AUDIO_EXT: &[&str] = &[
 ];
 
 const PICTURE_EXT: &[&str] = &[
-    "jpg", "jpeg", "png", "gif", "bmp", "webp",
+    "jpg", "jpeg", "jp2", "j2k", "jpf", "jpx",
+    "jpm", "mj2", "png", "gif", "bmp", "webp",
     "svg", "tif", "tiff", "ico", "heic", "heif",
-    "avif", "raw", "psd",
+    "avif", "raw", "psd", "bmp", "dib"
 ];
 
 const VIDEO_EXT: &[&str] = &[

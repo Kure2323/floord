@@ -6,6 +6,7 @@ use std::{
     path::PathBuf,
     time::Duration,
 };
+use crate::database::init;
 
 mod floord_args;
 pub mod database;
@@ -16,12 +17,12 @@ fn main() {
     let inbox_dir: PathBuf = arguments.inbox.unwrap_or_else(|| {
         download_dir().expect("[ERROR] Could not find default inbox path (Downloads)")
     });
-
+    init();
     let seconds = Duration::new(arguments.delay, 0);
 
     loop {
         service(&inbox_dir);
-        sleep(seconds);
+        sleep(Duration::from_millis(100)); // 10 times per second to no overload
     }
 }
 
