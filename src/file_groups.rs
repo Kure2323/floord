@@ -1,6 +1,6 @@
 use dirs::{audio_dir, document_dir, picture_dir, video_dir};
 use std::fs::{DirEntry, create_dir_all, rename};
-use std::path::PathBuf;
+use std::path::Path;
 
 const AUDIO_EXT: &[&str] = &[
     "mp3", "wav", "flac", "aac", "ogg", "opus",
@@ -26,7 +26,7 @@ const DOCUMENT_EXT: &[&str] = &[
     "ppt", "pptx", "odp", "epub", "mobi", "pages",
 ];
 
-fn save_unknown(path: &PathBuf, inbox: &PathBuf) {
+fn save_unknown(path: &Path, inbox: &Path) {
     let unknown_path = inbox.join("Unknown");
     create_dir_all(&unknown_path).expect("[ERROR] Could not create inbox/Unknown directory");
 
@@ -35,10 +35,9 @@ fn save_unknown(path: &PathBuf, inbox: &PathBuf) {
 
 }
 
-pub fn save(file: DirEntry, inbox: &PathBuf) {
-    let Ok(metadata) = file.metadata() else { return };
+pub fn save(file: DirEntry, inbox: &Path) {
 
-    let path = &file.path();
+    let path = file.path();
 
     if path.is_dir() && path.file_name().expect("[ERROR] Could not read file name") == "Unknown" {
         return;
@@ -71,6 +70,6 @@ pub fn save(file: DirEntry, inbox: &PathBuf) {
         }
     }
 
-    save_unknown(path, inbox);
+    save_unknown(&path, inbox);
 
 }
