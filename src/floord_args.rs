@@ -12,6 +12,14 @@ pub struct Args {
     /// Seconds to wait after a file appears at inbox path
     #[arg(short, long, default_value_t = 300)]
     pub delay: u64,
+
+    /// Runs service
+    #[arg(long)]
+    pub run: bool,
+
+    /// Uninstall service
+    #[arg(long)]
+    pub uninstall: bool
 }
 
 pub fn parse_args() -> Args {
