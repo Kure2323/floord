@@ -1,3 +1,4 @@
+use std::env::consts::OS;
 use std::env::current_exe;
 use std::ffi::OsString;
 use anyhow::{Context, Result};
@@ -9,7 +10,10 @@ pub fn service_handler(arguments: floord_args::Args) -> Result<()> {
     let label: ServiceLabel = "service.daemon.floord".parse()?;
 
     let mut native_manager = <dyn ServiceManager>::native().context("getting native service manager")?;
-    native_manager.set_level(ServiceLevel::User).context("making service user-level")?;
+
+    if OS != "windows" { // Windows does not support user service level
+        native_manager.set_level(ServiceLevel::User).context("making service user-level")?;
+    }
 
     let executable_path = current_exe().context("getting executable path")?;
     let mut args: Vec<OsString> = Vec::new();
@@ -40,8 +44,10 @@ pub fn service_handler(arguments: floord_args::Args) -> Result<()> {
 
     match status {
         ServiceStatus::NotInstalled => {
-            native_manager.install(service).context("installing service floord")?;
-            println!("Floord service installed correctly")
+            if !arguments.uninstall {
+                native_manager.install(service).context("installing service floord")?;
+                println!("Floord service installed correctly")
+            }
         }
         ServiceStatus::Running => {
             if arguments.uninstall {
@@ -57,7 +63,7 @@ pub fn service_handler(arguments: floord_args::Args) -> Result<()> {
     }
 
     if arguments.uninstall {
-        native_manager.uninstall(ServiceUninstallCtx {label}).context("Maybe it is already uninstalled, try rebooting")?;
+        native_manager.uninstall(ServiceUninstallCtx {label}).context("probably already uninstalled")?;
         println!("Uninstalling process completed");
         return Ok(())
     }
