@@ -43,6 +43,7 @@ pub fn save(file: DirEntry, inbox: &Path) {
         return;
     }
 
+    // TODO: Verify if the new path already exists and control check
     if let Some(extension) = path.extension().and_then(|i| { i.to_str() }) {
         if AUDIO_EXT.contains(&extension) {
             let file_name = path.file_name().expect("[ERROR] Getting bad paths example: (/foo.txt/..)");
