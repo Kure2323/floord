@@ -1,12 +1,11 @@
+use crate::floord_args;
+use anyhow::{Context, Result};
+use service_manager::{ServiceInstallCtx, ServiceLabel, ServiceLevel, ServiceManager, ServiceStartCtx, ServiceStatus, ServiceStatusCtx, ServiceStopCtx, ServiceUninstallCtx};
 use std::env::consts::OS;
 use std::env::current_exe;
 use std::ffi::OsString;
-use anyhow::{Context, Result};
-use service_manager::{ServiceInstallCtx, ServiceLabel, ServiceLevel, ServiceManager, ServiceStartCtx, ServiceStatus, ServiceStatusCtx, ServiceStopCtx, ServiceUninstallCtx};
-use crate::floord_args;
 
 pub fn service_handler(arguments: floord_args::Args) -> Result<()> {
-
     let label: ServiceLabel = "service.daemon.floord".parse()?;
 
     let mut native_manager = <dyn ServiceManager>::native().context("getting native service manager")?;
@@ -39,7 +38,7 @@ pub fn service_handler(arguments: floord_args::Args) -> Result<()> {
         restart_policy: Default::default(),
     };
 
-    let status = native_manager.status(ServiceStatusCtx {label: label.clone()})
+    let status = native_manager.status(ServiceStatusCtx { label: label.clone() })
         .context("retrieving service status")?;
 
     match status {
@@ -51,8 +50,8 @@ pub fn service_handler(arguments: floord_args::Args) -> Result<()> {
         }
         ServiceStatus::Running => {
             if arguments.uninstall {
-                native_manager.stop(ServiceStopCtx {label: label.clone()}).context("stopping service")?;
-                native_manager.uninstall(ServiceUninstallCtx {label}).context("Maybe it is already uninstalled, try rebooting")?;
+                native_manager.stop(ServiceStopCtx { label: label.clone() }).context("stopping service")?;
+                native_manager.uninstall(ServiceUninstallCtx { label }).context("Maybe it is already uninstalled, try rebooting")?;
                 println!("Uninstalling and stopping process completed");
                 return Ok(())
             }
@@ -63,7 +62,7 @@ pub fn service_handler(arguments: floord_args::Args) -> Result<()> {
     }
 
     if arguments.uninstall {
-        native_manager.uninstall(ServiceUninstallCtx {label}).context("probably already uninstalled")?;
+        native_manager.uninstall(ServiceUninstallCtx { label }).context("probably already uninstalled")?;
         println!("Uninstalling process completed");
         return Ok(())
     }
