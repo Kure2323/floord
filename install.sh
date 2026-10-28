@@ -1,4 +1,11 @@
 #!/usr/bin/env sh
+set -eu
+
+if ! command -v cargo >/dev/null 2>&1; then
+    printf '%s\n' "Error: Cargo not installed." >&2
+    printf '%s\n' "Install Rust from https://rustup.rs/" >&2
+    exit 1
+fi
 
 cargo install --path daemon
 cargo install --path setup
