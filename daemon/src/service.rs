@@ -1,5 +1,5 @@
-use crate::file_groups::save;
-use crate::floord_args::Args;
+use crate::savings::save;
+use crate::daemon_args::Args;
 use anyhow::Result;
 use dirs::download_dir;
 use std::fs::{DirEntry, ReadDir};
@@ -9,6 +9,7 @@ use std::time::{Duration, SystemTime};
 
 const DELAY: Duration = Duration::from_millis(100);
 pub fn run(arguments: Args) -> Result<()> {
+    // TODO: verify if given path is absolute or relative and if it even exists
     let inbox_dir: PathBuf = arguments.inbox.unwrap_or_else(|| {
         download_dir().unwrap()
     });
