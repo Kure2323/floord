@@ -9,8 +9,7 @@ use std::time::{Duration, SystemTime};
 
 const DELAY: Duration = Duration::from_millis(100);
 pub fn run(arguments: Args) -> Result<()> {
-    // TODO: verify if given path is absolute or relative and if it even exists
-    let inbox_dir: PathBuf = arguments.inbox.unwrap_or_else(|| {
+    let inbox_dir: PathBuf = arguments.inbox.unwrap_or_else(|| { // No need to verify 
         download_dir().unwrap()
     });
     let seconds = Duration::from_secs(arguments.delay);
