@@ -46,27 +46,48 @@ pub fn save(file: DirEntry, inbox: &Path) {
     // TODO: Verify if the new path already exists and control check
     if let Some(extension) = path.extension().and_then(|i| { i.to_str() }) {
         if AUDIO_EXT.contains(&extension) {
-            let file_name = path.file_name().expect("[ERROR] Getting bad paths example: (/foo.txt/..)");
-            let new_path = audio_dir().expect("[ERROR] Audio path should exist").join(file_name);
-            rename(path, new_path).expect("[ERROR] Verify inbox does exist");
+            if let Some(audio_dir) = audio_dir() {
+                let file_name = path.file_name().expect("[ERROR] Getting bad paths example: (/foo.txt/..)");
+                let new_path = audio_dir.join(file_name);
+
+                if let Err(_) = rename(path, new_path) {
+                    return;
+                }
+                return;
+            }
             return;
+
         }
         if PICTURE_EXT.contains(&extension) {
-            let file_name = path.file_name().expect("[ERROR] Getting bad paths example: (/foo.txt/..)");
-            let new_path = picture_dir().expect("[ERROR] Picture path should exist").join(file_name);
-            rename(path, new_path).expect("[ERROR] Verify inbox does exist");
-            return;
+            if let Some(picture_dir) = picture_dir() {
+                let file_name = path.file_name().expect("[ERROR] Getting bad paths example: (/foo.txt/..)");
+                let new_path = picture_dir.join(file_name);
+                if let Err(_) = rename(path, new_path) {
+                    return;
+                }
+                return;
+            }
+            return
         }
         if VIDEO_EXT.contains(&extension) {
-            let file_name = path.file_name().expect("[ERROR] Getting bad paths example: (/foo.txt/..)");
-            let new_path = video_dir().expect("[ERROR] Video path should exist").join(file_name);
-            rename(path, new_path).expect("[ERROR] Verify inbox does exist");
-            return;
+            if let Some(video_dir) = video_dir() {
+                let file_name = path.file_name().expect("[ERROR] Getting bad paths example: (/foo.txt/..)");
+                let new_path = video_dir.join(file_name);
+                if let Err(_) = rename(path, new_path) {
+                    return;
+                }
+                return;
+            }
+            return
         }
         if DOCUMENT_EXT.contains(&extension) {
-            let file_name = path.file_name().expect("[ERROR] Getting bad paths example: (/foo.txt/..)");
-            let new_path = document_dir().expect("[ERROR] Documents path should exist").join(file_name);
-            rename(path, new_path).expect("[ERROR] Verify inbox does exist");
+            if let Some(document_dir) = document_dir() {
+                let file_name = path.file_name().expect("[ERROR] Getting bad paths example: (/foo.txt/..)");
+                let new_path = document_dir.join(file_name);
+                if let Err(_) = rename(path, new_path) {
+                    return;
+                }               return;
+            }
             return;
         }
     }
