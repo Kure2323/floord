@@ -55,7 +55,11 @@ pub fn run(arguments: setup_args::Args) -> Result<()> {
                 return Ok(())
             }
             println!("Floord service already running!");
-            return Ok(())
+            native_manager.stop(ServiceStopCtx { label: label.clone() }).context("stopping service for reboot")?;
+            native_manager.uninstall(ServiceUninstallCtx { label: label.clone() }).context("uninstalling for reboot")?;
+            native_manager.install(service).context("installing service for reboot")?;
+
+            println!("Restarting...")
         }
         ServiceStatus::Stopped(_) => {}
     }
@@ -67,9 +71,10 @@ pub fn run(arguments: setup_args::Args) -> Result<()> {
     }
 
     native_manager.start(ServiceStartCtx {
-        label
+        label: label.clone()
     }).context("stating service")?;
     println!("Floord service started");
+    println!("Label: {label}");
 
     Ok(())
 }
