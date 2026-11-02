@@ -31,7 +31,15 @@ fn save_unknown(path: &Path, inbox: &Path) {
     create_dir_all(&unknown_path).expect("[ERROR] Could not create inbox/Unknown directory");
 
     let file_name = path.file_name().expect("[ERROR] Getting bad paths example: (/foo.txt/..)");
-    rename(path, unknown_path.join(file_name)).expect("[ERROR] Verify inbox does exist");
+    let mut new_path = unknown_path.join(file_name);
+    match write_to_path(path, &new_path) {
+        Ok(_) => {}
+        Err(WritingError::Exists) => {
+            rename_destination(&mut new_path);
+            let _ = write_to_path(path, &new_path);
+        }
+        _ => {}
+    }
 
 }
 // TODO: Check if file at destination path already exists
@@ -43,15 +51,12 @@ pub fn save(file: DirEntry, inbox: &Path) {
         return;
     }
 
-    // TODO: Verify if the new path already exists and control check
     if let Some(extension) = path.extension().and_then(|i| { i.to_str() }) {
         if AUDIO_EXT.contains(&extension) {
             if let Some(audio_dir) = audio_dir() {
                 let file_name = path.file_name().expect("[ERROR] Getting bad paths example: (/foo.txt/..)");
-                let new_path = audio_dir.join(file_name);
-                if rename(path, new_path).is_err() {
-                    return;
-                }
+                let mut new_path = audio_dir.join(file_name);
+                write(&path, &mut new_path)
             }
             return;
 
@@ -59,30 +64,24 @@ pub fn save(file: DirEntry, inbox: &Path) {
         if PICTURE_EXT.contains(&extension) {
             if let Some(picture_dir) = picture_dir() {
                 let file_name = path.file_name().expect("[ERROR] Getting bad paths example: (/foo.txt/..)");
-                let new_path = picture_dir.join(file_name);
-                if rename(path, new_path).is_err() {
-                    return;
-                }
+                let mut new_path = picture_dir.join(file_name);
+                write(&path, &mut new_path)
             }
             return
         }
         if VIDEO_EXT.contains(&extension) {
             if let Some(video_dir) = video_dir() {
                 let file_name = path.file_name().expect("[ERROR] Getting bad paths example: (/foo.txt/..)");
-                let new_path = video_dir.join(file_name);
-                if rename(path, new_path).is_err() {
-                    return;
-                }
+                let mut new_path = video_dir.join(file_name);
+                write(&path, &mut new_path)
             }
             return
         }
         if DOCUMENT_EXT.contains(&extension) {
             if let Some(document_dir) = document_dir() {
                 let file_name = path.file_name().expect("[ERROR] Getting bad paths example: (/foo.txt/..)");
-                let new_path = document_dir.join(file_name);
-                if rename(path, new_path).is_err() {
-                    return;
-                }
+                let mut new_path = document_dir.join(file_name);
+                write(&path, &mut new_path)
             }
             return;
         }
@@ -92,21 +91,79 @@ pub fn save(file: DirEntry, inbox: &Path) {
 
 }
 
-#[derive(Debug)]
+fn write(path: &Path, new_path: &mut PathBuf) {
+    match write_to_path(path, new_path) {
+        Ok(()) => {}
+        Err(WritingError::Exists) => {
+            rename_destination(new_path);
+
+            let _ = write_to_path(path, new_path);
+        }
+        _ => {}
+    }
+}
+
+#[derive(Debug, PartialEq)]
 enum WritingError {
     Exists,
-
-    Symlink,
+    IsDirectory,
+    IsSymlink,
+    Renaming,
 }
 
 fn write_to_path(file_path: &Path, new_path: &Path) -> Result<(), WritingError> {
-    if !new_path.exists() {
+    if new_path.exists() {
         return Err(WritingError::Exists);
     }
     if file_path.is_symlink() {
-        return Err(WritingError::Symlink)
+        return Err(WritingError::IsSymlink)
+    }
+    if file_path.is_dir() {
+        return Err(WritingError::IsDirectory)
     }
 
+    if rename(file_path, new_path).is_err() {
+        return Err(WritingError::Renaming)
+    }
 
     Ok(())
+}
+
+
+use std::path::PathBuf;
+
+fn rename_destination(new_path: &mut PathBuf) {
+    if let (Some(file_name), Some(folder)) =
+        (new_path.file_stem(), new_path.parent())
+    {
+        let file_name = file_name.to_string_lossy().to_string();
+        let folder = folder.to_path_buf();
+
+        let extension = new_path.extension().map(|e| e.to_os_string());
+
+        let (base_name, mut count) = match file_name.rsplit_once('(') {
+            Some((name, number)) => {
+                match number.strip_suffix(')').and_then(|n| n.parse::<u32>().ok()) {
+                    Some(n) if !name.is_empty() => (name.to_string(), n + 1),
+                    _ => (file_name.clone(), 1),
+                }
+            }
+            None => (file_name.clone(), 1),
+        };
+
+        while new_path.exists() {
+            let new_name = match &extension {
+                Some(ext) => format!(
+                    "{} ({}).{}",
+                    base_name,
+                    count,
+                    ext.to_string_lossy()
+                ),
+                None => format!("{}({})", base_name, count),
+            };
+
+            *new_path = folder.join(new_name);
+            count += 1;
+        }
+    }
 }

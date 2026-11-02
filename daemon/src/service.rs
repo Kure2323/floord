@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 use std::thread::sleep;
 use std::time::{Duration, SystemTime};
 
-const DELAY: Duration = Duration::from_millis(100);
+const DELAY: Duration = Duration::from_millis(1000);
 pub fn run(arguments: Args) -> Result<()> {
     let inbox_dir: PathBuf = arguments.inbox.unwrap_or_else(|| { // No need to verify 
         download_dir().unwrap()
@@ -28,7 +28,7 @@ fn service(inbox_dir: &Path, seconds: &Duration) -> Result<()> {
     for entry in read_dir {
         // Read the file's metadata
         let Ok(dir_entry) = entry else { continue };
-        manage_entry(dir_entry, inbox_dir, &seconds)?
+        manage_entry(dir_entry, inbox_dir, seconds)?
     }
     Ok(())
 }
