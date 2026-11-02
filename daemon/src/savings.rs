@@ -34,7 +34,7 @@ fn save_unknown(path: &Path, inbox: &Path) {
     rename(path, unknown_path.join(file_name)).expect("[ERROR] Verify inbox does exist");
 
 }
-
+// TODO: Check if file at destination path already exists
 pub fn save(file: DirEntry, inbox: &Path) {
 
     let path = file.path();
@@ -49,11 +49,9 @@ pub fn save(file: DirEntry, inbox: &Path) {
             if let Some(audio_dir) = audio_dir() {
                 let file_name = path.file_name().expect("[ERROR] Getting bad paths example: (/foo.txt/..)");
                 let new_path = audio_dir.join(file_name);
-
-                if let Err(_) = rename(path, new_path) {
+                if rename(path, new_path).is_err() {
                     return;
                 }
-                return;
             }
             return;
 
@@ -62,10 +60,9 @@ pub fn save(file: DirEntry, inbox: &Path) {
             if let Some(picture_dir) = picture_dir() {
                 let file_name = path.file_name().expect("[ERROR] Getting bad paths example: (/foo.txt/..)");
                 let new_path = picture_dir.join(file_name);
-                if let Err(_) = rename(path, new_path) {
+                if rename(path, new_path).is_err() {
                     return;
                 }
-                return;
             }
             return
         }
@@ -73,10 +70,9 @@ pub fn save(file: DirEntry, inbox: &Path) {
             if let Some(video_dir) = video_dir() {
                 let file_name = path.file_name().expect("[ERROR] Getting bad paths example: (/foo.txt/..)");
                 let new_path = video_dir.join(file_name);
-                if let Err(_) = rename(path, new_path) {
+                if rename(path, new_path).is_err() {
                     return;
                 }
-                return;
             }
             return
         }
@@ -84,9 +80,9 @@ pub fn save(file: DirEntry, inbox: &Path) {
             if let Some(document_dir) = document_dir() {
                 let file_name = path.file_name().expect("[ERROR] Getting bad paths example: (/foo.txt/..)");
                 let new_path = document_dir.join(file_name);
-                if let Err(_) = rename(path, new_path) {
+                if rename(path, new_path).is_err() {
                     return;
-                }               return;
+                }
             }
             return;
         }
@@ -94,4 +90,23 @@ pub fn save(file: DirEntry, inbox: &Path) {
 
     save_unknown(&path, inbox);
 
+}
+
+#[derive(Debug)]
+enum WritingError {
+    Exists,
+
+    Symlink,
+}
+
+fn write_to_path(file_path: &Path, new_path: &Path) -> Result<(), WritingError> {
+    if !new_path.exists() {
+        return Err(WritingError::Exists);
+    }
+    if file_path.is_symlink() {
+        return Err(WritingError::Symlink)
+    }
+
+
+    Ok(())
 }
