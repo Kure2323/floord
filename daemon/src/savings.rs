@@ -106,7 +106,6 @@ fn write(path: &Path, new_path: &mut PathBuf) {
 #[derive(Debug, PartialEq)]
 enum WritingError {
     Exists,
-    IsDirectory,
     IsSymlink,
     Renaming,
 }
@@ -117,9 +116,6 @@ fn write_to_path(file_path: &Path, new_path: &Path) -> Result<(), WritingError> 
     }
     if file_path.is_symlink() {
         return Err(WritingError::IsSymlink)
-    }
-    if file_path.is_dir() {
-        return Err(WritingError::IsDirectory)
     }
 
     if rename(file_path, new_path).is_err() {
