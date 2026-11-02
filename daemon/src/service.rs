@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 use std::thread::sleep;
 use std::time::{Duration, SystemTime};
 
-const DELAY: Duration = Duration::from_millis(1000);
+const DELAY: Duration = Duration::from_millis(250);
 pub fn run(arguments: Args) -> Result<()> {
     let inbox_dir: PathBuf = arguments.inbox.unwrap_or_else(|| { // No need to verify 
         download_dir().unwrap()

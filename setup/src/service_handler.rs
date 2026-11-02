@@ -6,7 +6,7 @@ use std::env::current_exe;
 use std::ffi::OsString;
 
 pub fn run(arguments: setup_args::Args) -> Result<()> {
-    let label: ServiceLabel = "service.daemon.setup".parse()?;
+    let label: ServiceLabel = "service.floor.daemon".parse()?;
 
     let mut native_manager = <dyn ServiceManager>::native().context("getting native service setup")?;
 
