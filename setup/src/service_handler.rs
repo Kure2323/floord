@@ -18,6 +18,10 @@ pub fn run(arguments: setup_args::Args) -> Result<()> {
     let mut args: Vec<OsString> = Vec::new();
 
     if let Some(inbox_path) = arguments.inbox {
+        if !inbox_path.is_dir() || !inbox_path.exists() {
+            println!("[ERROR] Inbox path need to be a directory!");
+            return Ok(())
+        }
         args.push("--inbox".into());
         args.push(inbox_path.into());
     }
