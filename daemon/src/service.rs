@@ -7,8 +7,8 @@ use std::path::{Path, PathBuf};
 use std::thread::sleep;
 use std::time::{Duration, SystemTime};
 
-const DELAY: Duration = Duration::from_millis(250);
-pub fn run(arguments: Args) -> Result<()> {
+const DELAY: Duration = Duration::from_millis(25);
+pub fn run_loop(arguments: Args) -> Result<()> {
     let inbox_dir: PathBuf = arguments.inbox.unwrap_or_else(|| { // No need to verify 
         download_dir().unwrap()
     });
@@ -20,7 +20,7 @@ pub fn run(arguments: Args) -> Result<()> {
     }
 }
 
-fn service(inbox_dir: &Path, seconds: &Duration) -> Result<()> {
+pub fn service(inbox_dir: &Path, seconds: &Duration) -> Result<()> {
     let read_dir: ReadDir = inbox_dir
         .read_dir()
         .expect("[ERROR] Could not read inbox directory");
@@ -38,6 +38,7 @@ fn manage_entry(dir_entry: DirEntry, inbox_dir: &Path, delay_in_seconds: &Durati
     let metadata = dir_entry.metadata()?;
     let current_time = SystemTime::now();
 
+    // TODO: manage possible errors
     if current_time.duration_since(metadata.accessed()?)? < *delay_in_seconds ||
         current_time.duration_since(metadata.created()?)? < *delay_in_seconds ||
         current_time.duration_since(metadata.modified()?)? < *delay_in_seconds
