@@ -129,7 +129,8 @@ fn save_unknown(path: &Path, inbox: &Path) {
     }
 
 }
-// TODO: Check if file at destination path already exists
+
+/// Filter and saves file in the designated path
 pub fn save(file: DirEntry, inbox: &Path) {
 
     let path = file.path();

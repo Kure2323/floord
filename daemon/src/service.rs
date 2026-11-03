@@ -1,5 +1,5 @@
-use crate::savings::save;
 use crate::daemon_args::Args;
+use crate::savings::save;
 use anyhow::Result;
 use dirs::download_dir;
 use std::fs::{DirEntry, ReadDir};
@@ -14,35 +14,49 @@ pub fn run_loop(arguments: Args) -> Result<()> {
     });
     let seconds = Duration::from_secs(arguments.delay);
 
+    if !arguments.daemon {
+        service(&inbox_dir, &seconds)?;
+        return Ok(())
+    }
+
     loop {
         service(&inbox_dir, &seconds)?;
         sleep(DELAY);
     }
 }
 
+/// Initialize the service
 pub fn service(inbox_dir: &Path, seconds: &Duration) -> Result<()> {
     let read_dir: ReadDir = inbox_dir
         .read_dir()
         .expect("[ERROR] Could not read inbox directory");
 
     for entry in read_dir {
-        // Read the file's metadata
+
         let Ok(dir_entry) = entry else { continue };
-        manage_entry(dir_entry, inbox_dir, seconds)?
+        let _ = manage_entry(dir_entry, inbox_dir, seconds);
     }
     Ok(())
 }
 
+/// Filters and manages the file-entry in the folder
 fn manage_entry(dir_entry: DirEntry, inbox_dir: &Path, delay_in_seconds: &Duration) -> Result<()> {
 
     let metadata = dir_entry.metadata()?;
     let current_time = SystemTime::now();
 
-    // TODO: manage possible errors
-    if current_time.duration_since(metadata.accessed()?)? < *delay_in_seconds ||
-        current_time.duration_since(metadata.created()?)? < *delay_in_seconds ||
-        current_time.duration_since(metadata.modified()?)? < *delay_in_seconds
-    { return Ok(()) }
+    if metadata.accessed().ok().and_then(|t| current_time.duration_since(t).ok())
+        .map(|d| d < *delay_in_seconds).unwrap_or(false) {
+        return Ok(())
+    }
+    if metadata.created().ok().and_then(|t| current_time.duration_since(t).ok())
+        .map(|d| d < *delay_in_seconds).unwrap_or(false) {
+        return Ok(())
+    }
+    if metadata.modified().ok().and_then(|t| current_time.duration_since(t).ok())
+        .map(|d| d < *delay_in_seconds).unwrap_or(false) {
+        return Ok(())
+    }
 
     save(dir_entry, inbox_dir);
     Ok(())

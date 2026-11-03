@@ -28,6 +28,7 @@ pub fn run(arguments: setup_args::Args) -> Result<()> {
 
     args.push("--delay".into());
     args.push(arguments.delay.to_string().into());
+    args.push("--daemon".into());
 
     let service = ServiceInstallCtx {
         label: label.clone(),

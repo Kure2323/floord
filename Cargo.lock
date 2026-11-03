@@ -233,7 +233,7 @@ dependencies = [
 
 [[package]]
 name = "floord"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "anyhow",
  "clap",
@@ -242,7 +242,7 @@ dependencies = [
 
 [[package]]
 name = "floord_setup"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "anyhow",
  "clap",
