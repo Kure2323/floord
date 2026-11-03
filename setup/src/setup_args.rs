@@ -5,15 +5,15 @@ use std::path::PathBuf;
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 pub struct Args {
-    /// Directory used as inbox (Default: Downloads)
+    /// Directory to monitor for incoming files [default: ~/Downloads]
     #[arg(short, long)]
     pub inbox: Option<PathBuf>,
 
-    /// Seconds to wait after a file appears at inbox path
+    /// Minimum time in seconds a file must remain unmodified before being organized
     #[arg(short, long, default_value_t = 300)]
     pub delay: u64,
 
-    /// Uninstall service
+    /// Uninstall Floord from the system service manager
     #[arg(long)]
     pub uninstall: bool
 }
