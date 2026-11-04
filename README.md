@@ -21,7 +21,11 @@ git clone https://github.com/Kure2323/floord.git
 cd floord
 sh install.sh
 ```
-
+Alternatively, install both binaries using Cargo:
+```bash
+cargo install --git https://github.com/Kure2323/floord.git floord
+cargo install --git https://github.com/Kure2323/floord.git floord_setup
+```
 ## Starting the Service
 Once installed, run:
 ```bash

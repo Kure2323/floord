@@ -8,7 +8,7 @@ use std::thread::sleep;
 use std::time::{Duration, SystemTime};
 
 const DELAY: Duration = Duration::from_millis(25);
-pub fn run_loop(arguments: Args) -> Result<()> {
+pub fn run(arguments: Args) -> Result<()> {
     let inbox_dir: PathBuf = arguments.inbox.unwrap_or_else(|| { // No need to verify 
         download_dir().unwrap()
     });
@@ -16,6 +16,7 @@ pub fn run_loop(arguments: Args) -> Result<()> {
 
     if !arguments.daemon {
         service(&inbox_dir, &seconds)?;
+        println!("All cleaned!");
         return Ok(())
     }
 

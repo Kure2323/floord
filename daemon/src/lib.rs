@@ -6,7 +6,7 @@ pub mod daemon_args;
 pub mod savings;
 
 pub fn daemon_run() -> anyhow::Result<()> {
-    service::run_loop(daemon_args::parse_args())?;
+    service::run(daemon_args::parse_args())?;
     Ok(())
 }
 
