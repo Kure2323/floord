@@ -15,7 +15,7 @@ pub struct Args {
 
     /// Uninstall Floord from the system service manager
     #[arg(long)]
-    pub uninstall: bool
+    pub uninstall: bool,
 }
 
 pub fn parse_args() -> Args {

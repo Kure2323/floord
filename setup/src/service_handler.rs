@@ -1,6 +1,9 @@
 use crate::setup_args;
 use anyhow::{Context, Result};
-use service_manager::{ServiceInstallCtx, ServiceLabel, ServiceLevel, ServiceManager, ServiceStartCtx, ServiceStatus, ServiceStatusCtx, ServiceStopCtx, ServiceUninstallCtx};
+use service_manager::{
+    ServiceInstallCtx, ServiceLabel, ServiceLevel, ServiceManager, ServiceStartCtx, ServiceStatus,
+    ServiceStatusCtx, ServiceStopCtx, ServiceUninstallCtx,
+};
 use std::env::consts::OS;
 use std::env::current_exe;
 use std::ffi::OsString;
@@ -8,10 +11,14 @@ use std::ffi::OsString;
 pub fn run(arguments: setup_args::Args) -> Result<()> {
     let label: ServiceLabel = "service.floor.daemon".parse()?;
 
-    let mut native_manager = <dyn ServiceManager>::native().context("getting native service setup")?;
+    let mut native_manager =
+        <dyn ServiceManager>::native().context("getting native service setup")?;
 
-    if OS != "windows" { // Windows does not support user service level
-        native_manager.set_level(ServiceLevel::User).context("making service user-level")?;
+    if OS != "windows" {
+        // Windows does not support user service level
+        native_manager
+            .set_level(ServiceLevel::User)
+            .context("making service user-level")?;
     }
 
     let executable_path = current_exe()?.parent().unwrap().join("floord");
@@ -20,7 +27,7 @@ pub fn run(arguments: setup_args::Args) -> Result<()> {
     if let Some(inbox_path) = arguments.inbox {
         if !inbox_path.is_dir() || !inbox_path.exists() {
             println!("[ERROR] Inbox path need to be a directory!");
-            return Ok(())
+            return Ok(());
         }
         args.push("--inbox".into());
         args.push(inbox_path.into());
@@ -42,27 +49,48 @@ pub fn run(arguments: setup_args::Args) -> Result<()> {
         restart_policy: Default::default(),
     };
 
-    let status = native_manager.status(ServiceStatusCtx { label: label.clone() })
+    let status = native_manager
+        .status(ServiceStatusCtx {
+            label: label.clone(),
+        })
         .context("retrieving service status")?;
 
     match status {
         ServiceStatus::NotInstalled => {
             if !arguments.uninstall {
-                native_manager.install(service).context("installing service")?;
+                native_manager
+                    .install(service)
+                    .context("installing service")?;
                 println!("Floord service installed correctly")
             }
         }
         ServiceStatus::Running => {
             if arguments.uninstall {
-                native_manager.stop(ServiceStopCtx { label: label.clone() }).context("stopping service")?;
-                native_manager.uninstall(ServiceUninstallCtx { label }).context("Maybe it is already uninstalled, try rebooting")?;
+                native_manager
+                    .stop(ServiceStopCtx {
+                        label: label.clone(),
+                    })
+                    .context("stopping service")?;
+                native_manager
+                    .uninstall(ServiceUninstallCtx { label })
+                    .context("Maybe it is already uninstalled, try rebooting")?;
                 println!("Uninstalling and stopping process completed");
-                return Ok(())
+                return Ok(());
             }
             println!("Floord service already running!");
-            native_manager.stop(ServiceStopCtx { label: label.clone() }).context("stopping service for reboot")?;
-            native_manager.uninstall(ServiceUninstallCtx { label: label.clone() }).context("uninstalling for reboot")?;
-            native_manager.install(service).context("installing service for reboot")?;
+            native_manager
+                .stop(ServiceStopCtx {
+                    label: label.clone(),
+                })
+                .context("stopping service for reboot")?;
+            native_manager
+                .uninstall(ServiceUninstallCtx {
+                    label: label.clone(),
+                })
+                .context("uninstalling for reboot")?;
+            native_manager
+                .install(service)
+                .context("installing service for reboot")?;
 
             println!("Restarting...")
         }
@@ -70,14 +98,18 @@ pub fn run(arguments: setup_args::Args) -> Result<()> {
     }
 
     if arguments.uninstall {
-        native_manager.uninstall(ServiceUninstallCtx { label }).context("probably already uninstalled")?;
+        native_manager
+            .uninstall(ServiceUninstallCtx { label })
+            .context("probably already uninstalled")?;
         println!("Uninstalling process completed");
-        return Ok(())
+        return Ok(());
     }
 
-    native_manager.start(ServiceStartCtx {
-        label: label.clone()
-    }).context("stating service")?;
+    native_manager
+        .start(ServiceStartCtx {
+            label: label.clone(),
+        })
+        .context("stating service")?;
     println!("Floord service started");
     println!("Label: {label}");
 
