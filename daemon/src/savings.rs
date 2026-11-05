@@ -87,7 +87,6 @@ const PICTURE_EXT: &[&str] = &[
     "cdr",
     "emf",
     "wmf",
-    "pdf",
     // Other
     "pcx",
     "tga",
@@ -224,12 +223,13 @@ fn write(path: &Path, new_path: &mut PathBuf) {
         Err(WritingError::Exists) => {
             rename_destination(new_path);
 
-            let _ = write_to_path(path, new_path);
+            write_to_path(path, new_path).unwrap();
         }
         _ => {}
     }
 }
 
+#[derive(Debug)]
 enum WritingError {
     Exists,
     IsSymlink,
