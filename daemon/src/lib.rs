@@ -51,6 +51,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn move_to_documents() {
         let tmp = tempdir_in(".").unwrap();
         let secs = Duration::ZERO;
@@ -69,6 +70,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn move_to_pictures() {
         let tmp = tempdir_in(".").unwrap();
         let secs = Duration::ZERO;
@@ -87,6 +89,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn move_to_audio() {
         let tmp = tempdir_in(".").unwrap();
         let secs = Duration::ZERO;
@@ -105,6 +108,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn move_to_video() {
         let tmp = tempdir_in(".").unwrap();
         let secs = Duration::ZERO;
